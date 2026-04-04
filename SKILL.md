@@ -76,6 +76,16 @@ Don't over-invest in harness infrastructure for tasks that don't need it.
 
 Output: a clear TODO list with ordered, scoped tasks before any implementation begins.
 
+## Phase 1.5: Planning (Large Tasks)
+
+For large or greenfield tasks, separate **planning** from **implementation**:
+
+1. **Expand the prompt into a product spec** — Take the user's brief description (even 1-4 sentences) and expand it into a full spec with features, user flows, and scope. Be ambitious but stay at the product level — don't specify granular implementation details upfront, because errors in over-specified plans cascade into the implementation.
+2. **Constrain deliverables, not paths** — Define *what* to build (features, acceptance criteria), not *how* to build it. Let the implementation agent figure out the technical path. This avoids brittle plans that break on contact with the actual codebase.
+3. **Separate the planner from the builder** — If your runtime supports multiple agents, use a dedicated planner agent that writes the spec, then hand it off to a generator agent that implements one feature at a time. The planner focuses on product context and high-level technical design; the generator focuses on code.
+
+For medium tasks, you can combine planning and implementation in the same agent — but still write down the plan (as a TODO list or spec) before coding. For small tasks, skip this phase entirely.
+
 ## Phase 2: Task Decomposition
 
 Break the work into **atomic units** — each one is independently:
@@ -102,6 +112,26 @@ For any non-trivial feature, define a **sprint contract** before implementing �
 3. Hard pass/fail thresholds for each criterion.
 
 The contract bridges the gap between high-level specs and testable implementation. When using separated evaluation (see *Separated Evaluation* below), the generator proposes what it will build and how success will be verified; the evaluator reviews the proposal before any code is written. Even without a separate evaluator, writing the contract forces you to think about success criteria before coding — preventing scope drift and "vibes-based" completion.
+
+Example sprint contract for a "User Authentication" sprint:
+```
+Sprint 3: User Authentication
+Deliverables:
+  - Login page with email/password form
+  - POST /auth/login endpoint returning JWT
+  - Protected route middleware
+
+Acceptance criteria (hard pass/fail):
+  1. POST /auth/login with valid credentials → 200 + JWT token (3 segments)
+  2. POST /auth/login with wrong password → 401 + {"error": "Invalid credentials"}
+  3. POST /auth/login with missing email → 400 + validation error
+  4. GET /dashboard without token → 302 redirect to /login
+  5. GET /dashboard with valid token → 200 + dashboard content
+  6. Login form submits and redirects to /dashboard on success
+  7. Login form shows error message on failure
+
+Threshold: all 7 criteria must pass. Any failure → sprint fails with specific feedback.
+```
 
 ## Phase 3: Safe Execution
 
@@ -196,13 +226,18 @@ For tasks that take many turns:
 
 Two strategies for managing a filling context window — choose based on situation:
 
-- **Compaction** (summarizing earlier conversation in-place): Preserves continuity but doesn't give the agent a clean slate. Some models exhibit "context anxiety" — prematurely wrapping up work as they approach perceived context limits. Compaction does not fix this.
+- **Compaction** (summarizing earlier conversation in-place): Preserves continuity but doesn't give the agent a clean slate.
 - **Context reset** (clearing the window entirely, starting a fresh agent with structured handoff artifacts): Eliminates context anxiety and gives a clean slate. The cost is orchestration complexity — the handoff artifact must carry enough state for the next agent to pick up cleanly.
+
+**Context anxiety** is a failure mode where agents prematurely wrap up or rush work as they approach perceived context limits — cutting corners, skipping verification, or declaring tasks "done" early. Compaction does not fix this because the agent still perceives itself as deep into a long conversation. Only a full context reset (clean slate) eliminates it. Watch for these symptoms:
+- Verification steps becoming shorter or skipped entirely as the session progresses
+- The agent suggesting "we can finish the rest later" when there's no actual reason to stop
+- Declining quality or increasing shortcuts in later tasks compared to earlier ones
 
 **When to use which:**
 - Short-to-medium tasks where context fits comfortably → compaction is sufficient.
 - Long tasks (multi-hour, many features) or when quality noticeably degrades mid-session → prefer context reset with structured handoff (progress file + feature list + git commits).
-- Model-dependent: Some models (e.g., Sonnet 4.5) exhibit strong context anxiety and need resets. Others (e.g., Opus 4.5+) handle long contexts well enough that compaction alone works. Test and observe with your specific model.
+- **Model-dependent**: This behavior varies significantly by model. Some models (e.g., Sonnet 4.5) exhibit strong context anxiety and need resets. Others (e.g., Opus 4.5+) handle long contexts well enough that compaction alone works — Anthropic was able to drop context resets entirely for Opus 4.5 in their long-running harness. Test and observe with your specific model; if quality degrades late in sessions, try context resets before blaming the task complexity.
 
 ### Multi-Session Handoffs
 
@@ -252,6 +287,8 @@ Verified all three cases by actually calling the endpoint."
   4. If criteria aren't met, iterate with specific feedback.
 - For UI work, this means using browser automation to interact with the live application, take screenshots, and verify behavior end-to-end.
 - For API work, this means making real HTTP requests and checking responses.
+- **Calibrate the evaluator with examples** — If using a separate evaluator agent, provide few-shot examples with detailed score breakdowns in its prompt. This anchors the evaluator's judgment to your quality standards, reduces score drift across iterations, and prevents the evaluator from being too lenient or too harsh.
+- **Use files for inter-agent communication** — When generator and evaluator are separate agents, communicate via files (e.g., `sprint_contract.md`, `eval_feedback.md`) rather than direct message passing. One agent writes a file, the other reads it and responds. This creates an auditable trail and works across context resets.
 
 ## Anti-Patterns
 
