@@ -12,7 +12,7 @@ compatibility: >-
   OpenClaw, OpenHarness, or repo-local instruction files.
 metadata:
   author: rickyma
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Harness Engineering
@@ -83,7 +83,7 @@ Not every task needs the full harness. Match investment to task size:
 - **Medium tasks** (3-10 files, some ambiguity): Full Phase 1 reconnaissance. Use sub-agents for exploration if available. Create a TODO list.
 - **Large tasks** (10+ files, unfamiliar codebase, multi-session): Full harness with progress files, feature lists, and setup scripts. Use sub-agents aggressively. Plan for multi-session handoffs.
 
-Don't over-invest in harness infrastructure for tasks that don't need it.
+Don't over-invest in harness infrastructure for tasks that don't need it. As models improve, revisit which harness components are still load-bearing — strip scaffolding that newer models handle natively. The evaluator adds most value at the edge of model capability; for tasks well within the model's comfort zone, it becomes overhead.
 
 Output: a clear TODO list with ordered, scoped tasks before any implementation begins.
 
@@ -125,24 +125,18 @@ For any non-trivial feature, define a **sprint contract** before implementing �
 
 When using separated evaluation, the generator proposes what it will build and how success will be verified; the evaluator reviews the proposal. **They negotiate via files** (e.g., `sprint_contract.md`) — one writes, the other reads and responds — iterating until both agree before any code is written. Even without a separate evaluator, writing the contract forces you to think about success criteria before coding — preventing scope drift and "vibes-based" completion.
 
-Example sprint contract for a "User Authentication" sprint:
+Example sprint contract:
 ```
 Sprint 3: User Authentication
-Deliverables:
-  - Login page with email/password form
-  - POST /auth/login endpoint returning JWT
-  - Protected route middleware
+Deliverables: Login page, POST /auth/login → JWT, protected route middleware
 
 Acceptance criteria (hard pass/fail):
-  1. POST /auth/login with valid credentials → 200 + JWT token (3 segments)
-  2. POST /auth/login with wrong password → 401 + {"error": "Invalid credentials"}
-  3. POST /auth/login with missing email → 400 + validation error
-  4. GET /dashboard without token → 302 redirect to /login
-  5. GET /dashboard with valid token → 200 + dashboard content
-  6. Login form submits and redirects to /dashboard on success
-  7. Login form shows error message on failure
+  1. POST /auth/login with valid credentials → 200 + JWT token
+  2. POST /auth/login with wrong password → 401 + error message
+  3. GET /dashboard without token → 302 redirect to /login
+  4. GET /dashboard with valid token → 200 + dashboard content
 
-Threshold: all 7 criteria must pass. Any failure → sprint fails with specific feedback.
+Threshold: all 4 must pass. Any failure → sprint fails with specific feedback.
 ```
 
 When using a separate evaluator, provide 2-3 scored example evaluations in its prompt to anchor its judgment to your quality standards and reduce score drift across iterations.
@@ -205,6 +199,16 @@ After each verified change:
 
 ### 3f. Track Progress
 Update the TODO list and progress file after each task completes. Mark done, note any discovered follow-ups. This is critical for multi-session work — the next session will use these artifacts to get up to speed.
+
+### 3g. Know When to Escalate
+Not everything should be autonomous. **Stop and ask the human** when:
+- A decision is **irreversible or high-risk** (data migration, production deployment, deleting data, public API changes).
+- You're **uncertain about intent** — the requirement is ambiguous and two valid interpretations lead to very different implementations.
+- You've **failed 3 times** on the same problem (see Failure Recovery).
+- The task involves **security-sensitive operations** (auth changes, secrets handling, permission escalation, network-facing changes).
+- You're about to make an **architectural decision** that will be expensive to reverse.
+
+The most valuable agent skill is knowing when to ask for help rather than guessing wrong.
 
 ## Phase 4: Review and Harden
 
@@ -330,6 +334,8 @@ Verified all three cases by actually calling the endpoint."
 | Start with multi-agent when single-agent works | Use one agent until you hit a demonstrable ceiling, then add more |
 | Rely on instructions alone for quality enforcement | Use hooks and CI for deterministic guarantees — advisory rules get ignored under pressure |
 | Skip requirements clarification on vague tasks | Interview the user about constraints, edge cases, and "done" criteria before planning |
+| Guess on high-risk decisions autonomously | Stop and ask — irreversible actions, security changes, and ambiguous intent need human confirmation |
+| Keep all harness components forever | Strip scaffolding that newer models handle natively — build to delete |
 
 ## Failure Recovery
 
@@ -348,14 +354,11 @@ When something goes wrong:
 ## Tool Usage Principles
 
 When using tools during execution:
-- **Discover before using** — When many tools are available, examine what's accessible before starting work. Match tool choice to user intent. Don't default to general-purpose tools when specialized ones exist for the task.
-- **Consolidate operations** — Prefer tools that do multiple related things in one call over making many small calls.
-- **Be token-efficient** — Request concise responses when you only need IDs or status; request detailed responses only when you need full context.
-- **Namespace awareness** — When many tools are available, use the most specific one for the task. Don't use a general tool when a specialized one exists.
-- **Handle errors gracefully** — Tool calls can fail. Check responses before acting on them. Don't assume success.
+- **Discover before using** — When many tools are available, examine what's accessible before starting work. Match tool choice to user intent. Don't default to general-purpose tools when specialized ones exist.
+- **Phase-appropriate tools** — When configurable, restrict available tools by phase (e.g., read-only during reconnaissance, write-enabled during execution). This prevents premature modifications and guides agent behavior.
+- **Consolidate operations** — Prefer tools that do multiple related things in one call over making many small calls. Be token-efficient — request concise responses when you only need IDs or status.
 - **Treat denials as feedback** — When a tool call is denied (permissions, sandbox, policy), treat the denial as informative output and adjust your approach. Repeated denials signal a fundamental approach problem.
-- **Deduplicate reads** — If you've already read a file this turn and it hasn't been modified, don't re-read it.
-- **Collapse stale output** — Large tool outputs from several turns ago that are no longer relevant should be mentally compressed to their conclusions. Retain what you learned, discard the raw details.
+- **Handle errors gracefully** — Tool calls can fail. Check responses before acting on them. Don't assume success.
 
 ## Deep Dive
 

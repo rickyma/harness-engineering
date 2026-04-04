@@ -65,7 +65,7 @@ For agents that support knowledge uploads (Manus, custom GPTs, etc.), upload `SK
 
 ### What NOT to do
 
-**Don't** copy `SKILL.md` into always-loaded instruction directories (`.cursor/rules/`, root `CLAUDE.md`, `.trae/rules/`, `.windsurfrules`, `.github/copilot-instructions.md`, etc.). At ~350 lines, it would consume context on every session — including simple tasks that don't need it. The whole point of harness engineering is disciplined context management; always-loading a 350-line methodology file contradicts that principle.
+**Don't** copy `SKILL.md` into always-loaded instruction directories (`.cursor/rules/`, root `CLAUDE.md`, `.trae/rules/`, `.windsurfrules`, `.github/copilot-instructions.md`, etc.). At ~360 lines, it would consume context on every session — including simple tasks that don't need it. The whole point of harness engineering is disciplined context management; always-loading a 360-line methodology file contradicts that principle.
 
 **Don't** paste `SKILL.md` content into your system prompt or custom instructions. Load it as a file/skill that the agent reads on demand.
 
@@ -88,14 +88,14 @@ This is what your AI agent reads when loaded. It contains:
 - **Phase 1: Reconnaissance** — Map architecture, find invariants, locate tests, calibrate effort to task size
 - **Phase 1.5: Planning** — Expand prompts into product specs, separate planning from implementation for large tasks
 - **Phase 2: Task Decomposition** — Break work into atomic, verifiable, reversible units; sprint contracts with concrete acceptance criteria for defining "done" before coding
-- **Phase 3: Safe Execution** — Read-before-write, additive changes, immediate verification, incremental commits
+- **Phase 3: Safe Execution** — Read-before-write, additive changes, immediate verification, incremental commits, human escalation for high-risk decisions
 - **Phase 4: Review and Harden** — Full regression check, doc updates, summary
 - **Context Management** — Sub-agent-first investigation, just-in-time retrieval, file read deduplication, aggressive compaction, context anxiety detection, context reset vs compaction tradeoffs
 - **Multi-Session Handoffs** — Progress files, feature lists, setup scripts, session start/end protocols
 - **Separated Evaluation** — Anti-laziness verification patterns, evaluator calibration with few-shot examples, file-based inter-agent communication
 - **Anti-Patterns** — Concrete "don't do this → do this instead" pairs
 - **Failure Recovery** — Circuit breakers, 3-attempt limit, checkpoint/rewind, revert-and-rethink
-- **Tool Usage** — Discover before using, consolidate operations, handle denials as feedback
+- **Tool Usage** — Discover before using, phase-appropriate tool restriction, consolidate operations, handle denials as feedback
 
 ### reference.md — The Theory
 
@@ -152,6 +152,8 @@ This project distills best practices from:
 18. **Mechanical invariants** — hooks, linters, and CI as deterministic guardrails, not just documentation
 19. **Regenerate stale plans** — compare plan vs codebase, rebuild when drifted
 20. **Interview before building** — clarify vague requirements into a written spec before planning
+21. **Escalate, don't guess** — stop and ask the human on irreversible, security-sensitive, or ambiguous decisions
+22. **Build to delete** — every harness component should be removable when models outgrow it
 
 ## Contributing
 
