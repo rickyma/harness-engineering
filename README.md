@@ -73,9 +73,11 @@ For agents that support knowledge uploads (Manus, custom GPTs, etc.), upload `SK
 
 ```
 ├── SKILL.md          # The operational guide — your agent loads this on demand
-├── reference.md      # Theoretical background and sources — for human readers
-└── README.md         # This file
+├── reference.md      # Theoretical background and sources — for human readers; agent loads on demand for deep dives
+└── README.md         # This file — for humans only, do NOT copy into your skill directory
 ```
+
+> **Note:** When installing as a skill, copy only `SKILL.md` (required) and optionally `reference.md` into your agent's skill directory. `README.md` is for GitHub readers and should not be placed in the skill directory — per [Anthropic's skill authoring best practices](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf).
 
 ### SKILL.md — The Operational Guide
 
