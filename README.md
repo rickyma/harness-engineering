@@ -1,6 +1,6 @@
 # harness-engineering
 
-An on-demand skill that teaches AI coding agents (Claude Code, Cursor, Codex, CodeBuddy, Trae, Windsurf, Augment, Copilot, OpenClaw, WorkBuddy, Manus, etc.) harness engineering best practices — the discipline of making agents reliable on complex, multi-step software tasks.
+An on-demand skill that teaches AI coding agents (Claude Code, Cursor, Codex, CodeBuddy, Trae, Windsurf, Augment, Copilot, OpenClaw, OpenHarness, WorkBuddy, Manus, etc.) harness engineering best practices — the discipline of making agents reliable on complex, multi-step software tasks.
 
 ## What This Is
 

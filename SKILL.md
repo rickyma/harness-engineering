@@ -80,8 +80,8 @@ Output: a clear TODO list with ordered, scoped tasks before any implementation b
 
 For large or greenfield tasks, separate **planning** from **implementation**:
 
-1. **Expand the prompt into a product spec** — Take the user's brief description (even 1-4 sentences) and expand it into a full spec with features, user flows, and scope. Be ambitious but stay at the product level — don't specify granular implementation details upfront, because errors in over-specified plans cascade into the implementation.
-2. **Constrain deliverables, not paths** — Define *what* to build (features, acceptance criteria), not *how* to build it. Let the implementation agent figure out the technical path. This avoids brittle plans that break on contact with the actual codebase.
+1. **Expand the prompt into a product spec** — Take the user's brief description (even 1-4 sentences) and expand it into a full spec with features, user flows, and scope. Be ambitious but stay at the product level — don't specify granular implementation details upfront.
+2. **Constrain deliverables, not paths** — **Key lesson: errors in over-specified plans cascade into implementation.** Define *what* to build (features, acceptance criteria), not *how* to build it. Let the implementation agent figure out the technical path. This avoids brittle plans that break on contact with the actual codebase.
 3. **Separate the planner from the builder** — If your runtime supports multiple agents, use a dedicated planner agent that writes the spec, then hand it off to a generator agent that implements one feature at a time. The planner focuses on product context and high-level technical design; the generator focuses on code.
 
 For medium tasks, you can combine planning and implementation in the same agent — but still write down the plan (as a TODO list or spec) before coding. For small tasks, skip this phase entirely.
@@ -132,6 +132,8 @@ Acceptance criteria (hard pass/fail):
 
 Threshold: all 7 criteria must pass. Any failure → sprint fails with specific feedback.
 ```
+
+When using a separate evaluator, provide 2-3 scored example evaluations in its prompt to anchor its judgment to your quality standards and reduce score drift across iterations.
 
 ## Phase 3: Safe Execution
 
