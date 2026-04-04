@@ -111,7 +111,7 @@ This project distills best practices from:
 
 | Source | Key Contributions |
 |--------|------------------|
-| [Anthropic](https://www.anthropic.com/engineering) | Long-running agent harnesses, context engineering (context reset vs compaction), separated evaluation, multi-agent research system (orchestrator-worker, token scaling), tool design, sandboxing, auto mode, evals (eval awareness), parallel agent teams, 2026 Agentic Coding Trends Report |
+| [Anthropic](https://www.anthropic.com/engineering) | Long-running agent harnesses, context engineering (context reset vs compaction), separated evaluation, multi-agent research system (orchestrator-worker, token scaling), tool design, sandboxing, auto mode, evals (eval awareness), parallel agent teams, Claude Agent SDK (agent loop: gather context → act → verify → repeat), 2026 Agentic Coding Trends Report |
 | [OpenAI](https://openai.com/index/harness-engineering/) | Harness engineering, AGENTS.md, repo-local instructions, browser validation, agent-first architecture, 25-hour long-horizon Codex runs |
 | [LangChain](https://blog.langchain.com/the-anatomy-of-an-agent-harness/) | Harness anatomy, framework vs runtime vs harness taxonomy, State of Agent Engineering 2026, agent observability via traces |
 | [Thoughtworks / Martin Fowler](https://martinfowler.com/articles/exploring-gen-ai/harness-engineering.html) | Entropy management, reference anchoring, spec-driven development, quality loops, human-on-the-loop |

@@ -38,7 +38,7 @@ A systematic approach for completing large software tasks without breaking thing
 
 ## Phase 0: Orient
 
-Before anything else, ground yourself in the current state of the repo.
+Before anything else, ground yourself in the current state of the repo. **Explore first, then plan, then code** — resist the urge to jump straight to implementation.
 
 1. **Read the agent instruction file** — Look for `CLAUDE.md`, `.cursor/rules/`, `AGENTS.md`, `CONVENTIONS.md`, or equivalent. These contain repo-specific instructions: build commands, test commands, coding conventions, architectural decisions. Follow them.
 2. **Check repo state** — Run `git status`, `git log --oneline -10`, check the current branch. Know what's changed recently and what state the working tree is in.
