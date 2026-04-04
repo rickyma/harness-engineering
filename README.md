@@ -67,6 +67,8 @@ For agents that support knowledge uploads (Manus, custom GPTs, etc.), upload `SK
 
 **Don't** copy `SKILL.md` into always-loaded instruction directories (`.cursor/rules/`, root `CLAUDE.md`, etc.). At ~300 lines, it would consume context on every session — including simple tasks that don't need it. The whole point of harness engineering is disciplined context management; always-loading a 300-line methodology file contradicts that principle.
 
+**Don't** paste `SKILL.md` content into your system prompt or custom instructions. Load it as a file/skill that the agent reads on demand.
+
 ## File Structure
 
 ```

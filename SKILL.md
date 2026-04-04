@@ -34,6 +34,8 @@ A systematic approach for completing large software tasks without breaking thing
 - Task spans a long session where context can drift
 - Task is too large for a single context window (multi-session work)
 
+**Skip this methodology for**: Single-file bug fixes, documentation-only changes, simple config tweaks, or any task completable in < 3 steps.
+
 ## Phase 0: Orient
 
 Before anything else, ground yourself in the current state of the repo.
@@ -99,7 +101,7 @@ For any non-trivial feature, define a **sprint contract** before implementing �
 2. Specific behaviors to verify (e.g., "POST /users with missing name returns 400").
 3. Hard pass/fail thresholds for each criterion.
 
-The contract bridges the gap between high-level specs and testable implementation. When using separated evaluation (see below), the generator proposes what it will build and how success will be verified; the evaluator reviews the proposal before any code is written. Even without a separate evaluator, writing the contract forces you to think about success criteria before coding — preventing scope drift and "vibes-based" completion.
+The contract bridges the gap between high-level specs and testable implementation. When using separated evaluation (see *Separated Evaluation* below), the generator proposes what it will build and how success will be verified; the evaluator reviews the proposal before any code is written. Even without a separate evaluator, writing the contract forces you to think about success criteria before coding — preventing scope drift and "vibes-based" completion.
 
 ## Phase 3: Safe Execution
 
@@ -140,7 +142,7 @@ After each change:
 1. Check for linter/compiler errors in modified files.
 2. Run relevant tests if available.
 3. If no tests exist, mentally trace the change through all callers/consumers.
-4. For UI changes: use browser automation or screenshots to verify end-to-end behavior as a user would. **Do not mark a feature as complete based only on code review — test it running.**
+4. For UI changes: use browser automation (e.g., Playwright MCP) or screenshots to verify end-to-end behavior as a user would. **Do not mark a feature as complete based only on code review — test it running.**
 5. Fix any introduced issues before moving to the next task.
 6. Be specific in verification summaries:
 
