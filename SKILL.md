@@ -2,10 +2,11 @@
 name: harness-engineering
 description: >-
   Disciplined methodology for AI agents executing large, multi-step software
-  tasks reliably. Use when working on complex refactors, feature development,
-  optimization, migration, or any task spanning many files or requiring
-  sustained focus. Ensures safety, traceability, and completeness across
-  long-running sessions, including multi-context-window handoffs.
+  tasks reliably. Covers context engineering, separated evaluation, and
+  multi-session handoffs. Use when working on complex refactors, feature
+  development, optimization, migration, or any task spanning many files or
+  requiring sustained focus. Ensures safety, traceability, and completeness
+  across long-running sessions, including multi-context-window handoffs.
 ---
 
 # Harness Engineering
@@ -38,7 +39,9 @@ A systematic approach for completing large software tasks without breaking thing
 
 ## Phase 0: Orient
 
-Before anything else, ground yourself in the current state of the repo. **Explore first, then plan, then code** — resist the urge to jump straight to implementation.
+> **Golden Rule: Explore → Plan → Code. Never skip the first two.**
+
+Before anything else, ground yourself in the current state of the repo.
 
 1. **Read the agent instruction file** — Look for `CLAUDE.md`, `.cursor/rules/`, `AGENTS.md`, `CONVENTIONS.md`, or equivalent. These contain repo-specific instructions: build commands, test commands, coding conventions, architectural decisions. Follow them.
 2. **Check repo state** — Run `git status`, `git log --oneline -10`, check the current branch. Know what's changed recently and what state the working tree is in.
@@ -239,7 +242,7 @@ Two strategies for managing a filling context window — choose based on situati
 **When to use which:**
 - Short-to-medium tasks where context fits comfortably → compaction is sufficient.
 - Long tasks (multi-hour, many features) or when quality noticeably degrades mid-session → prefer context reset with structured handoff (progress file + feature list + git commits).
-- **Model-dependent**: This behavior varies significantly by model. Some models (e.g., Sonnet 4.5) exhibit strong context anxiety and need resets. Others (e.g., Opus 4.5+) handle long contexts well enough that compaction alone works — Anthropic was able to drop context resets entirely for Opus 4.5 in their long-running harness. Test and observe with your specific model; if quality degrades late in sessions, try context resets before blaming the task complexity.
+- **Model-dependent**: This behavior varies significantly by model. Some models (e.g., Sonnet 4.5) exhibit strong context anxiety and need resets. Others (e.g., Opus 4.5+) handle long contexts well enough that compaction alone works — Anthropic was able to drop context resets entirely for Opus 4.5 in their March 2026 three-agent harness, running one continuous session with automatic compaction instead. Test and observe with your specific model; if quality degrades late in sessions, try context resets before blaming the task complexity.
 
 ### Multi-Session Handoffs
 
@@ -343,4 +346,4 @@ When using tools during execution:
 - **Handle errors gracefully** — Tool calls can fail. Check responses before acting on them. Don't assume success.
 - **Treat denials as feedback** — When a tool call is denied (permissions, sandbox, policy), treat the denial as informative output and adjust your approach. Repeated denials signal a fundamental approach problem.
 - **Deduplicate reads** — If you've already read a file this turn and it hasn't been modified, don't re-read it.
-- **Collapse stale output** — Large tool outputs from several turns ago that are no longer relevant should be compressed to their key conclusions.
+- **Collapse stale output** — Large tool outputs from several turns ago that are no longer relevant                                                
