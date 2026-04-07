@@ -12,7 +12,7 @@ compatibility: >-
   OpenClaw, OpenHarness, or repo-local instruction files.
 metadata:
   author: rickyma
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Harness Engineering
@@ -30,7 +30,7 @@ A systematic approach for completing large software tasks without breaking thing
 - [ ] **Explore and plan before coding** — understand the system first, then create a plan; don't jump to implementation
 - [ ] Map architecture before coding
 - [ ] Break into atomic tasks; create TODO list
-- [ ] For each task: read → implement → verify → commit → update progress
+- [ ] For each task: read → implement → verify → self-review → commit & push → update progress
 - [ ] After all tasks: re-read modified files, run full tests, update docs
 
 ## When to Apply
@@ -44,6 +44,40 @@ A systematic approach for completing large software tasks without breaking thing
 **Skip this methodology for**: Single-file bug fixes, documentation-only changes, simple config tweaks, or any task completable in < 3 steps.
 
 **Over-engineering signal:** If you're spending more time on harness overhead (progress files, feature lists, sub-agent delegation) than on the actual implementation, scale down. The harness serves the task, not the other way around.
+
+## Mandatory Behaviors (Never Skip)
+
+These rules apply to every task, regardless of size. Violating any means the task is incomplete.
+
+### Commit & Push Discipline
+- **MUST** git commit after completing each feature, fix, or logical unit of work.
+- **MUST** git push to remote after each commit. A local-only commit is incomplete work.
+- Commit granularity: one logical feature or fix per commit. Never bundle unrelated changes.
+- Commit message format: `type(scope): description` — e.g., `feat(auth): add JWT login endpoint`.
+
+### Completion Standard
+A feature is **NOT** done until ALL of these are true:
+1. Fully implemented — no stubs, no TODOs, no placeholders, no "// implement later".
+2. Verified by **actually running it** — not by reading the code.
+3. Committed to git with a descriptive message.
+4. Pushed to remote.
+5. TODO list / progress file updated.
+
+### Anti-Laziness Protocol
+- "The code looks correct" is **NOT** verification. Run it.
+- "The implementer is an LLM" — verify independently, with skepticism.
+- "This is probably fine" — probably is NOT verified. Run it.
+- Do NOT declare a task done early to "save context" or "continue later."
+- Do NOT skip verification steps as the session gets longer.
+- Do NOT produce partial implementations to "get it compiling."
+- If you feel the urge to wrap up prematurely, re-read the TODO list: is everything actually done and verified?
+
+### Relentless Forward Progress
+- Work through the TODO list without stopping until all items are complete or you are genuinely blocked.
+- If blocked on one task, document the blocker specifically (not vaguely) and move to the next unblocked task.
+- Never stop in the middle of a feature. Finish it → verify it → commit it → push it → then assess.
+- After all TODOs are complete, verify the whole system works end-to-end. If new issues surface, add them as new TODOs and keep going.
+- Only stop when: all TODOs are done, full verification passes, and all changes are committed and pushed.
 
 ## Phase 0: Orient
 
@@ -141,6 +175,17 @@ Threshold: all 4 must pass. Any failure → sprint fails with specific feedback.
 
 When using a separate evaluator, provide 2-3 scored example evaluations in its prompt to anchor its judgment to your quality standards and reduce score drift across iterations.
 
+### TODO Discipline
+
+The TODO list is your execution contract. Rules:
+
+1. **Create before coding** — No implementation until a TODO list exists.
+2. **Update in real-time** — Mark tasks in_progress when starting, completed immediately when done (not later).
+3. **Never silently skip** — If a TODO seems unnecessary, explicitly explain why and mark it cancelled. Never just ignore it.
+4. **Finish before switching** — A task marked in_progress MUST reach completed (or explicitly blocked with documented reason) before you start another.
+5. **Don't stop until empty** — When all TODOs are complete, run end-to-end verification. If new issues surface, add them as new TODOs and keep going.
+6. **Feature list is append-only** — When using a feature list (JSON or Markdown), NEVER remove or edit feature descriptions. Only change their pass/fail status. Editing descriptions to make them easier to pass is forbidden.
+
 ## Phase 3: Safe Execution
 
 For each atomic task:
@@ -192,15 +237,43 @@ After each change:
 "GET /api/users returns 200 with 3 users. POST /api/users with valid body returns 201. POST with missing 'name' returns 400 with error message."
 ```
 
-### 3e. Commit Incrementally
-After each verified change:
-1. Commit to git with a descriptive message explaining what changed and why.
-2. This creates recovery points — if something goes wrong later, you can revert to a known-good state.
+### 3e. Adversarial Self-Review (Role Switch)
 
-### 3f. Track Progress
+After implementing and basic-testing each feature, **switch mental roles** before committing:
+
+**As Reviewer** — pretend you are a skeptical senior engineer reviewing a junior's PR:
+1. Missing edge cases? (empty input, null, concurrent access, network failure)
+2. Silent failures? (errors swallowed, exceptions caught and ignored)
+3. Broken contracts? (API changes, data format shifts, UI flow breaks)
+4. Incomplete paths? (code paths leading to defaults, unreachable branches, dead code)
+
+**As Tester/QA** — pretend you are QA trying to break the feature:
+1. Test the happy path end-to-end (as a real user would).
+2. Test boundary conditions (minimum, maximum, empty, special characters).
+3. Test error paths (what happens when things go wrong?).
+4. For UI: use browser automation or screenshots. For API: make real HTTP requests.
+
+**As Architect** — step back and check system integrity:
+1. Does this change respect the invariants identified in Phase 1?
+2. Does it follow existing patterns (error handling, logging, config)?
+3. Will it surprise someone reading the code for the first time?
+
+**Strategic decision after review:**
+- If the feature passes all three reviews → commit and continue.
+- If issues found → fix them before committing. Do NOT defer fixes.
+- If fundamental approach is wrong → revert and take a different approach entirely (don't polish a bad design).
+
+### 3f. Commit & Push Incrementally
+After each verified change:
+1. Stage only the files related to this logical change (`git add` specific files, not `git add .` blindly).
+2. Commit with a descriptive message: what changed, why, and what it enables.
+3. **Push to remote immediately.** Local-only commits provide no safety net if the session dies.
+4. This creates recovery points on the remote — if something goes wrong later, any session can revert to a known-good state.
+
+### 3g. Track Progress
 Update the TODO list and progress file after each task completes. Mark done, note any discovered follow-ups. This is critical for multi-session work — the next session will use these artifacts to get up to speed.
 
-### 3g. Know When to Escalate
+### 3h. Know When to Escalate
 Not everything should be autonomous. **Stop and ask the human** when:
 - A decision is **irreversible or high-risk** (data migration, production deployment, deleting data, public API changes).
 - You're **uncertain about intent** — the requirement is ambiguous and two valid interpretations lead to very different implementations.
@@ -307,6 +380,19 @@ Verified all three cases by actually calling the endpoint."
 - For API work, this means making real HTTP requests and checking responses.
 - **Calibrate the evaluator with examples** — If using a separate evaluator agent, provide few-shot examples with detailed score breakdowns in its prompt. This anchors the evaluator's judgment to your quality standards, reduces score drift across iterations, and prevents the evaluator from being too lenient or too harsh.
 - **Use files for inter-agent communication** — When generator and evaluator are separate agents, communicate via files (e.g., `sprint_contract.md`, `eval_feedback.md`) rather than direct message passing. One agent writes a file, the other reads it and responds. This creates an auditable trail and works across context resets.
+
+### Single-Agent Evaluation Loop
+
+When no separate evaluator agent is available, run the evaluator-optimizer pattern yourself:
+
+1. **Implement** the feature (generator hat).
+2. **Evaluate** by switching to adversarial tester (evaluator hat) — run the feature, try to break it, grade against sprint contract criteria.
+3. **Decide**:
+   - Score trending good → **optimize** current direction (polish, edge cases).
+   - Approach fundamentally flawed → **pivot** to a completely different approach. Don't polish a bad design.
+4. **Iterate** until all criteria pass with hard evidence (test output, HTTP responses, screenshots — not "looks correct").
+
+This is a mandatory loop, not optional. Every non-trivial feature goes through at least one generate → evaluate → iterate cycle before being marked complete.
 
 ## Anti-Patterns
 
