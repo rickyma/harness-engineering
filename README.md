@@ -79,7 +79,7 @@ For agents that support knowledge uploads (Manus, custom GPTs, etc.), upload `SK
 
 > **Note:** When installing as a skill, copy only `SKILL.md` (required) and optionally `reference.md` into your agent's skill directory. `README.md` is for GitHub readers and should not be placed in the skill directory — per [Anthropic's skill authoring best practices](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf).
 
-### SKILL.md — The Operational Guide
+### [SKILL.md](SKILL.md) — The Operational Guide
 
 This is what your AI agent reads when loaded. It contains:
 
@@ -98,7 +98,7 @@ This is what your AI agent reads when loaded. It contains:
 - **Failure Recovery** — Circuit breakers, 3-attempt limit, checkpoint/rewind, revert-and-rethink
 - **Tool Usage** — Discover before using, phase-appropriate tool restriction, consolidate operations, handle denials as feedback
 
-### reference.md — The Theory
+### [reference.md](reference.md) — The Theory
 
 Deep background for humans. Contains:
 
